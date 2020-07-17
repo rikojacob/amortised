@@ -413,7 +413,7 @@ turn.
 
 \begin{figure}[htb]
 \centerline{\includegraphics[width=2in]{Zaehlwerk_Schema_1.jpg}
-$\quad$\includegraphics[width=2in]{Zaehlwerk_Schema_2_clean.png}}
+$\quad$\includegraphics[width=2in]{Zaehlwerk_Schema_2.jpg}}
 \caption{A 5-digit mechanical counter.}
 \end{figure}
 
@@ -632,7 +632,7 @@ For instance, consider the sequence of $N$ unions in Figure~\ref{fig: fast seque
     $(N-2)$ $(N-1)$\\
   \end{tabbing}
 \end{marginfigure}
-Each {\tt union} takes constant time, whereas the original {\tt QuickFind} data structure would have used linear time.
+In this sequence, each {\tt union} takes constant time, whereas the original {\tt QuickFind} data structure, each would have used linear time (in the number of already done operation).
 This is great progress.
 Unfortunately, our usual way of analyses is unable to detect that improvement, because we usually are interested in \emph{worst-case} running times.
 And the worst case running time of {\tt WeightedQuickFind} is quite bad:
@@ -710,12 +710,12 @@ In particular, {\tt id[i]} has been changed at most $\log (k+1)$ times.
 Next, we need to argue that at most $2k$ sites were renamed during the $k$ operations.
 This is because a site that never appeared as one of the two arguments in some call to {\tt union} still remains in its original component.
 Thus, at most $2k$ sites are ever renamed.
-We argued above that just saw that each site gets renamed at most $\sim\log k$ times in total.
-Thus, the total number of updates to {\tt id} is $\sim k\log k$. 
-This finishes the proof of propostion A4.
+We argued above that each site gets renamed at most $\sim\log k$ times in total.
+Thus, the total number of updates to {\tt id} is $\sim 2k\log k$. 
+This finishes the proof of proposition~A4.
 \bigskip
 
-Let us reiterate a few points about the formulation of proposition 4A:
+Let us reiterate a few points about the formulation of proposition~4A:
 \begin{enumerate}
   \item  Note the role that `worst case' plays:
     It says that in \emph{any}, even the most maliciously constructed input sequence, is is \emph{impossible} that the first $k$ operations take more than $O(k\log k)$ time in total.

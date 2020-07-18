@@ -104,9 +104,9 @@ This is also known as the potential method, where the potential of the data stru
 
 We use the variable $n = \texttt{last} - \texttt{first}$ for the current size of the data structure.
 
-We observe that the data structure maintains the invariant $\texttt{last} \geq \texttt{q.length/2}$. 
+We observe that the data structure maintains the invariant $\texttt{last} \geq \texttt{q.length/2} -1$. 
 \begin{quote}
-  {\bf Potential.} The data structure has $\texttt{first} + 2(\texttt{last} - \texttt{q.length}/2)$ coins in the piggy bank.
+  {\bf Potential.} The data structure has $\texttt{first} + 2(\texttt{last} - \texttt{q.length}/2 -1)$ coins in the piggy bank.
   One coin allows to copy 2 elements and create 4 slots in an array, i.e. stands for constant time.
 \end{quote}
 
@@ -118,8 +118,8 @@ This is obvious as long as resize is not called, so it suffices to consider
 \begin{description}
 \item[\texttt{enqueue}]
   Without resize, there is constant work and two coins need to be paid.
-  A resize happens by reaching the end of the array, we have $\texttt{last} - \texttt{q.length}/2 = \texttt{q.length}/2 \ge n/2$.
-  Hence, there are at least $n$ coins available to pay for the resize.
+  A resize happens when reaching the end of the array, hence $\texttt{last} - \texttt{q.length}/2-1 = \texttt{q.length}/2-1 \ge n/2 -1$.
+  Hence, there are at least $n-2$ coins available to pay for the resize, and the resize has constant amortized cost.
 \item[\texttt{dequeue}]
   Without resize, there is constant work and 1 coin to be paid.
   A resize happens if
@@ -130,11 +130,12 @@ This is obvious as long as resize is not called, so it suffices to consider
 
   \pagebreak
   We can also just do the calculus:
-  \[ \texttt{q.length/4} > \texttt{last} - \texttt{first} \ge \texttt{q.length/2} - \texttt{first} \]
-  \[  \texttt{first} >  \texttt{q.length/4} \]
-  \[  \texttt{q.length/2} - \texttt{first} <  \texttt{q.length/4} < \texttt{first} \]
-  \[ n = \texttt{last} - \texttt{first} = (\texttt{last} -\texttt{q.length/2}) + (\texttt{q.length/2} - \texttt{first}) \le  2(\texttt{last} - \texttt{q.length}/2) + \texttt{first}  \]
-  
+  \[ \texttt{q.length/4} > \texttt{last} - \texttt{first} \ge \texttt{q.length/2} -1 - \texttt{first} \]
+  \[  \texttt{first} >  \texttt{q.length/4} -1 \]
+  \[  \texttt{q.length/2} - \texttt{first}  <  \texttt{q.length/4} + 1 < \texttt{first} +2 \]
+  \[ n = \texttt{last} - \texttt{first} = (\texttt{last} -\texttt{q.length/2} -1) + (\texttt{q.length/2} +1 - \texttt{first}) \le\]
+  \[\le  2(\texttt{last} - \texttt{q.length}/2) + \texttt{first}  +3 \]
+  Hence, the coins in the piggy bank can pay for most of the cost of the resize, but a constant 3 that is payed by the dequeue.
 \end{description}
 
 \end{document}

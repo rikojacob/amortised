@@ -7,3 +7,6 @@ versionid:
 
 amortised: amortised.tex versionid
 	pdflatex amortised
+
+AlwaysResizeQueue: AlwaysResizeQueue.tex versionid
+	pdflatex AlwaysResizeQueue

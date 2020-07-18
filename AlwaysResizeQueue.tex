@@ -1,0 +1,140 @@
+\documentclass{tufte-handout}
+\usepackage{tikz}\usetikzlibrary{decorations.pathreplacing,positioning,chains}
+\usepackage{tipa}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\input{vc.tex}
+
+
+\usepackage[lastexercise,answerdelayed]{exercise}
+\setlength{\Exesep}{.5ex}
+\setlength{\Exetopsep}{1em}
+\renewcommand{\ExerciseListName}{Exercise}
+\renewcommand{\AnswerListName}{}
+\renewcommand{\ExerciseHeaderTitle}{(\emph{\ExerciseTitle.})\ }
+\renewcommand{\ExerciseListHeader}{\ExerciseHeaderDifficulty%
+\textbf{\ExerciseListName\ExerciseHeaderNB.}\ \ExerciseHeaderTitle%
+\ExerciseHeaderOrigin\ignorespaces}
+\renewcommand{\AnswerListHeader}{\textbf{\ExerciseHeaderNB.\ }}
+
+\title{Amortised analysis: Always Resizing Queue}
+\author{Riko Jacob}
+\date{\small Revision {\tt \GITAbrHash}$\ldots$, \GITAuthorDate, \GITAuthorName}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  This note analyzes the implementation AlwaysResizeQueue.java,
+  a FIFO queue that avoids wrap around by always creating a new array of twice the current size when the end of the current array is reached.
+\end{abstract}
+
+\begin{figure}
+\begin{tikzpicture}[remember picture,overlay] 
+  \draw [fill=orange!30]
+  (current page.south west) rectangle (current page.north east); 
+\end{tikzpicture}
+
+Algorithm A.1 
+
+\small
+\begin{lstlisting}[basicstyle=\ttfamily,backgroundcolor=\color{white},
+  frame=single,rulecolor=\color{gray!20},framesep=10pt, linewidth=12cm]
+public class AlwaysResizeQueue<Item> implements Iterable<Item> {
+    private Item[] q;       // queue elements
+    private int first;      // index of first element of queue
+    private int last;       // index of next available slot
+
+
+    public AlwaysResizeQueue() {
+        q = (Item[]) new Object[4];
+        first = 0;
+        last = 0;
+    }
+
+    public boolean isEmpty() {
+        return first == last;
+    }
+
+    public int size() {
+        return last-first;
+    }
+
+    // resize the underlying array
+    private void resize() {
+        int n = last - first;
+        Item[] copy = (Item[]) new Object[2*(n + 1)];
+        for (int i = 0; i < n; i++) {
+            copy[i] = q[(first + i) ];
+        }
+        q = copy;
+        first = 0;
+        last  = n;
+    }
+
+    public void enqueue(Item item) {
+        // copy to new array if end reached
+        if (last == q.length) resize();   // resize to double current size
+        q[last++] = item;                 // add item
+    }
+
+    public Item dequeue() {
+        if (isEmpty()) throw new NoSuchElementException("Queue underflow");
+        Item item = q[first];
+        q[first] = null;                            // to avoid loitering
+        first++;
+        // shrink size of array if necessary
+        if ( last > first + 4 && last - first < q.length/4) resize(); 
+        return item;
+    }
+}
+\end{lstlisting}
+\caption{\label{fig:impl}Implementation of Always Resize Queue}
+\end{figure}
+
+
+\begin{quote}
+  {\bf Proposition 1.} In the Always Resize Queue implementation, all operations take amortized constant time, beginning from an initialized data structure.
+\end{quote}
+
+We use the localised piggy bank argument with the additional property that we can read of the number of available coins from the current state of the data structure.
+This is also known as the potential method, where the potential of the data structure is the number of coins available in a certain state.
+
+We use the variable $n = \texttt{last} - \texttt{first}$ for the current size of the data structure.
+
+We observe that the data structure maintains the invariant $\texttt{last} \geq \texttt{q.length/2}$. 
+\begin{quote}
+  {\bf Potential.} The data structure has $\texttt{first} + 2(\texttt{last} - \texttt{q.length}/2)$ coins in the piggy bank.
+  One coin allows to copy 2 elements and create 4 slots in an array, i.e. stands for constant time.
+\end{quote}
+
+Observe that the actual cost of resize is $n$ copy operations and creating an array of $2n+2$ elements, i.e., $n$ coins.
+After the resize operation, there are no coins in the piggy bank.
+
+It remains to show that the all operations of the interface (not \texttt{resize}) take amortized constant time.
+This is obvious as long as resize is not called, so it suffices to consider
+\begin{description}
+\item[\texttt{enqueue}]
+  Without resize, there is constant work and two coins need to be paid.
+  A resize happens by reaching the end of the array, we have $\texttt{last} - \texttt{q.length}/2 = \texttt{q.length}/2 \ge n/2$.
+  Hence, there are at least $n$ coins available to pay for the resize.
+\item[\texttt{dequeue}]
+  Without resize, there is constant work and 1 coin to be paid.
+  A resize happens if
+  \[ \texttt{last} - \texttt{first} < \texttt{q.length/4} \]
+  which, together with the invariant, implies $\texttt{first} \ge \texttt{q.length/4}$.
+  Hence, the coins from \texttt{first} can pay at least for the elements in positions 
+  $\texttt{q.length/4}\ldots \texttt{q.length/2}$, while the coins from \texttt{last} can pay for the positions   $\texttt{q.length/2}\ldots \texttt{last}$.
+
+  \pagebreak
+  We can also just do the calculus:
+  \[ \texttt{q.length/4} > \texttt{last} - \texttt{first} \ge \texttt{q.length/2} - \texttt{first} \]
+  \[  \texttt{first} >  \texttt{q.length/4} \]
+  \[  \texttt{q.length/2} - \texttt{first} <  \texttt{q.length/4} < \texttt{first} \]
+  \[ n = \texttt{last} - \texttt{first} = (\texttt{last} -\texttt{q.length/2}) + (\texttt{q.length/2} - \texttt{first}) \le  2(\texttt{last} - \texttt{q.length}/2) + \texttt{first}  \]
+  
+\end{description}
+
+\end{document}

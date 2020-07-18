@@ -38,7 +38,7 @@ import java.util.NoSuchElementException;
  *  @author Kevin Wayne
  *  @author Riko Jacob
  */
-public class ResizingArrayQueueNoWrap<Item> implements Iterable<Item> {
+public class AlwaysResizeQueue<Item> implements Iterable<Item> {
     private Item[] q;       // queue elements
     private int first;      // index of first element of queue
     private int last;       // index of next available slot
@@ -47,8 +47,8 @@ public class ResizingArrayQueueNoWrap<Item> implements Iterable<Item> {
     /**
      * Initializes an empty queue.
      */
-    public ResizingArrayQueueNoWrap() {
-        q = (Item[]) new Object[4];
+    public AlwaysResizeQueue() {
+        q = (Item[]) new Object[2];
         first = 0;
         last = 0;
     }
@@ -145,7 +145,7 @@ public class ResizingArrayQueueNoWrap<Item> implements Iterable<Item> {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        ResizingArrayQueueNoWrap<String> queue = new ResizingArrayQueueNoWrap<String>();
+        AlwaysResizeQueue<String> queue = new AlwaysResizeQueue<String>();
         while (!StdIn.isEmpty()) {
             String item = StdIn.readString();
             if (!item.equals("-")) queue.enqueue(item);

@@ -27,8 +27,10 @@
 
 \begin{abstract}
   This note analyzes the implementation AlwaysResizeQueue.java,
-  a FIFO queue that avoids wrap around by always creating a new array of twice the current size when the end of the current array is reached.
+  an array based FIFO queue that avoids wrap around by always creating a new array of twice the current size when the end of the current array is reached.
 \end{abstract}
+
+See Figure~\ref{fig:impl} for the details of the implementation.
 
 \begin{figure}
 \begin{tikzpicture}[remember picture,overlay] 
@@ -48,7 +50,7 @@ public class AlwaysResizeQueue<Item> implements Iterable<Item> {
 
 
     public AlwaysResizeQueue() {
-        q = (Item[]) new Object[4];
+        q = (Item[]) new Object[2];
         first = 0;
         last = 0;
     }
@@ -109,7 +111,7 @@ We observe that the data structure maintains the invariant $\texttt{last} \geq \
   One coin allows to copy 2 elements and create 4 slots in an array, i.e. stands for constant time.
 \end{quote}
 
-Observe that the actual cost of resize is $n$ copy operations and creating an array of $2n+2$ elements, i.e., $n$ coins.
+Observe that the actual cost of resize is $n$ copy operations and creating an array of $2n+2$ elements, i.e., $n+1$ coins plus constant overhead.
 After the resize operation, there are no coins in the piggy bank.
 
 It remains to show that the all operations of the interface (not \texttt{resize}) take amortized constant time.
@@ -117,8 +119,9 @@ This is obvious as long as resize is not called, so it suffices to consider
 \begin{description}
 \item[\texttt{enqueue}]
   Without resize, there is constant work and two coins need to be paid.
-  A resize happens when reaching the end of the array, hence $\texttt{last} - \texttt{q.length}/2-1 = \texttt{q.length}/2-1 \ge n/2 -1$.
-  Hence, there are at least $n-2$ coins available to pay for the resize, and the resize has constant amortized cost.
+  A resize happens when reaching the end of the array, in which case $\texttt{last} - \texttt{q.length}/2-1 = \texttt{q.length}/2-1 \ge n/2 -1$.
+  Hence, there are at least $n-2$ coins available to pay for the resize, and the resize has constant amortized cost (including 3 coins that might not be in the piggy bank).
+\pagebreak
 \item[\texttt{dequeue}]
   Without resize, there is constant work and 1 coin to be paid.
   A resize happens if
@@ -127,14 +130,14 @@ This is obvious as long as resize is not called, so it suffices to consider
   Hence, the coins from \texttt{first} can pay at least for the elements in positions 
   $\texttt{q.length/4}\ldots \texttt{q.length/2}$, while the coins from \texttt{last} can pay for the positions   $\texttt{q.length/2}\ldots \texttt{last}$.
 
-  \pagebreak
+  % \pagebreak
   We can also just do the calculus:
   \[ \texttt{q.length/4} > \texttt{last} - \texttt{first} \ge \texttt{q.length/2} -1 - \texttt{first} \]
   \[  \texttt{first} >  \texttt{q.length/4} -1 \]
   \[  \texttt{q.length/2} - \texttt{first}  <  \texttt{q.length/4} + 1 < \texttt{first} +2 \]
   \[ n = \texttt{last} - \texttt{first} = (\texttt{last} -\texttt{q.length/2} -1) + (\texttt{q.length/2} +1 - \texttt{first}) \le\]
   \[\le  2(\texttt{last} - \texttt{q.length}/2) + \texttt{first}  +3 \]
-  Hence, the coins in the piggy bank can pay for most of the cost of the resize, but a constant 3 that is payed by the dequeue.
+  Hence, the coins in the piggy bank can pay for most of the cost of the resize, but a constant 3 that is payed by this dequeue operation.
 \end{description}
 
 \end{document}
